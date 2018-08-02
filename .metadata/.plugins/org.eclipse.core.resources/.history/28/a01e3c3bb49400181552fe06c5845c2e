@@ -1,0 +1,93 @@
+package com.niit.skillmap.rest.controller;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.niit.SkillMapBackend.model.Employee;
+import com.niit.SkillMapBackend.service.EmployeeService;
+
+@RestController
+@RequestMapping("/api/user")
+public class EmployeeController {
+
+	@Autowired
+	EmployeeService empservice;
+	@GetMapping
+	public ResponseEntity<List<Employee>> userList() {
+		if (empservice.getAllEmployees().size() != 0) {
+			return new ResponseEntity<List<Employee>>(empservice.getAllEmployees(), HttpStatus.OK);
+		} else {
+			return new ResponseEntity<List<Employee>>(HttpStatus.NO_CONTENT);
+		}
+	}
+	@PostMapping
+	public ResponseEntity<Employee> insertEmployee(@RequestBody Employee employee) {
+		
+		if (!empservice.insertEmployee(employee)) {
+			return new ResponseEntity<Employee>(employee, HttpStatus.CONFLICT);
+		} else {
+			return new ResponseEntity<Employee>(employee, HttpStatus.OK);
+		}
+	}
+	@GetMapping("/approvedlist")
+	public ResponseEntity<List<Employee>> listApprovedEmployees() {
+		return new ResponseEntity<List<Employee>>(empservice.listApprovedEmployees(), HttpStatus.CREATED);
+	}
+	@GetMapping("/notapprovedlist")
+	public ResponseEntity<List<Employee>> listNotApprovedEmployees() {
+		return new ResponseEntity<List<Employee>>(empservice.listNotApprovedEmployees(), HttpStatus.CREATED);
+	}
+	@PutMapping
+	public ResponseEntity<Employee> updateEmployee(@RequestBody Employee employee) {
+		
+		if (!empservice.updateEmployee(employee)) {
+			return new ResponseEntity<Employee>(HttpStatus.BAD_REQUEST);
+		}
+		return new ResponseEntity<Employee>(employee, HttpStatus.OK);
+	}
+	
+	@GetMapping("/approve/{eid}")
+	public ResponseEntity<Employee> approveEmployee(@PathVariable("eid") int eid) {
+
+		if (!empservice.approveEmployee(eid)) {
+			return new ResponseEntity<Employee>(HttpStatus.BAD_REQUEST);
+		}
+		Employee employee = empservice.getEmployeeById(eid);
+		return new ResponseEntity<Employee>(employee, HttpStatus.OK);
+	}
+	@GetMapping("/search/{name}")
+	public ResponseEntity<List<Employee>> searchEmployeeByName(@PathVariable("name") String name) {
+		
+
+		return new ResponseEntity<List<Employee>>(empservice.searchEmployeesByName(name), HttpStatus.CREATED);
+	}
+	
+	@GetMapping("/{eid}")
+	public ResponseEntity<Employee> getEmployeeById(@PathVariable("eid") int eid) {
+		
+		if(empservice.getEmployeeById(eid)!=null) {
+			return new ResponseEntity<Employee>(empservice.getEmployeeById(eid), HttpStatus.OK);
+		}
+		else 
+			return new ResponseEntity<Employee>(HttpStatus.NOT_FOUND); 
+	}
+	@PostMapping("/login")
+	public ResponseEntity<Employee> getEmailPassword(@RequestBody String email,String password) {
+		Employee employee=new Employee();
+		if (empservice.getUserByUserNameAndPassword(email, password)==null) {
+			return new ResponseEntity<Employee>(employee, HttpStatus.NOT_FOUND);
+		} else {
+			return new ResponseEntity<Employee>(employee,HttpStatus.OK);
+		}
+	}
+}

@@ -1,0 +1,5 @@
+package com.niit.skillmap.rest.controller;
+
+public class EmployeeController {
+
+}

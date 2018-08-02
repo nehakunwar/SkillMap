@@ -1,0 +1,5 @@
+package com.niit.skillmap.rest.config;
+
+public class WebAppInitializer {
+
+}
